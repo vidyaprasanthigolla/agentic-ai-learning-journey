@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Register Patient</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 4rem auto; padding: 0 1rem; line-height: 1.5; }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
+    input { width: 100%; box-sizing: border-box; padding: .6rem; margin-top: .3rem; font-size: 1rem; border: 1px solid #888; border-radius: 6px; }
+    button { margin-top: 1.5rem; padding: .7rem 1.2rem; font-size: 1rem; background: #1f6f6b; color: #fff; border: 0; border-radius: 6px; cursor: pointer; }
+    input:focus-visible, button:focus-visible { outline: 3px solid #f0b429; outline-offset: 2px; }
+    #message { margin-top: 1rem; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Register a patient</h1>
+
+  <label for="name">Name</label>
+  <input type="text" id="name" placeholder="e.g. Alice">
+
+  <label for="age">Age</label>
+  <input type="number" id="age" placeholder="e.g. 25" min="0">
+
+  <button onclick="submitForm()">Save patient</button>
+  <p id="message" role="status"></p>
+  <p><a href="/">Back to home</a></p>
+
+  <script>
+    async function submitForm() {
+      const name = document.getElementById("name").value.trim();
+      const age = parseInt(document.getElementById("age").value, 10);
+      const msg = document.getElementById("message");
+
+      if (!name || isNaN(age)) {
+        msg.textContent = "Enter a name and a numeric age.";
+        return;
+      }
+
+      try {
+        const response = await fetch("/submit-data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name, age: age })
+        });
+        const result = await response.json();
+        if (response.ok) {
+          msg.textContent = result.message;
+          document.getElementById("name").value = "";
+          document.getElementById("age").value = "";
+        } else {
+          msg.textContent = "The server rejected the data. Check the name and age.";
+        }
+      } catch (err) {
+        msg.textContent = "Could not reach the server. Is it running?";
+      }
+    }
+  </script>
+</body>
+</html>
